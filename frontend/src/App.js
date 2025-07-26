@@ -415,14 +415,17 @@ function App() {
                         <span>{new Date(doc.upload_date).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <a
-                      href={`${BACKEND_URL}/api/documents/${doc.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = `${BACKEND_URL}/api/documents/${doc.id}`;
+                        link.download = doc.original_filename;
+                        link.click();
+                      }}
                       className="bg-amber-700 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                     >
-                      Ouvrir
-                    </a>
+                      Télécharger
+                    </button>
                   </div>
                 </div>
               ))}
