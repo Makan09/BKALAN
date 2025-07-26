@@ -19,6 +19,7 @@ function App() {
     description: '',
     file: null
   });
+  const [uploading, setUploading] = useState(false);
   
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
