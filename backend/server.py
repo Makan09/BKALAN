@@ -133,10 +133,10 @@ async def get_sections():
 @app.post("/api/upload")
 async def upload_file(
     file: UploadFile = File(...),
-    title: str = "",
-    section: str = "",
-    subcategory: str = "",
-    description: str = ""
+    title: str = Form(""),
+    section: str = Form(""),
+    subcategory: str = Form(""),
+    description: str = Form("")
 ):
     try:
         print(f"Debug: Upload parameters - title: {title}, section: {section}, subcategory: {subcategory}")
