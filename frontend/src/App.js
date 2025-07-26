@@ -480,9 +480,12 @@ function App() {
                 </p>
               </div>
               
-              <div className="text-sm text-stone-600">
-                <p>Section: {getSectionTitle(activeSection)}</p>
-                <p>Classe: {activeSubcategory}</p>
+              <div className="bg-stone-50 p-3 rounded-lg text-sm text-stone-600">
+                <p><strong>Section:</strong> {getSectionTitle(activeSection)}</p>
+                <p><strong>Classe:</strong> {activeSubcategory}</p>
+                {uploadForm.file && (
+                  <p><strong>Fichier sélectionné:</strong> {uploadForm.file.name}</p>
+                )}
               </div>
               
               <div className="flex space-x-4">
