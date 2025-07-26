@@ -109,48 +109,77 @@ function App() {
       return;
     }
 
+    // Try WebSocket first, fallback to polling
     const wsUrl = `${BACKEND_URL.replace('https', 'wss').replace('http', 'ws')}/api/chat/ws/${encodeURIComponent(userName)}`;
-    ws.current = new WebSocket(wsUrl);
+    
+    try {
+      ws.current = new WebSocket(wsUrl);
 
-    ws.current.onopen = () => {
+      ws.current.onopen = () => {
+        setIsConnected(true);
+        loadChatMessages();
+        setChatMessages(prev => [...prev, {
+          user: 'Système',
+          message: `${userName} a rejoint le chat`,
+          timestamp: new Date().toISOString(),
+          isSystem: true
+        }]);
+      };
+
+      ws.current.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        
+        if (data.type === 'message') {
+          setChatMessages(prev => [...prev, {
+            user: data.user,
+            message: data.message,
+            timestamp: data.timestamp
+          }]);
+        } else if (data.type === 'user_joined') {
+          setChatMessages(prev => [...prev, {
+            user: 'Système',
+            message: `${data.user} a rejoint le chat`,
+            timestamp: data.timestamp,
+            isSystem: true
+          }]);
+        } else if (data.type === 'user_left') {
+          setChatMessages(prev => [...prev, {
+            user: 'Système',
+            message: `${data.user} a quitté le chat`,
+            timestamp: data.timestamp,
+            isSystem: true
+          }]);
+        }
+      };
+
+      ws.current.onclose = () => {
+        setIsConnected(false);
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        // Fallback to simple mode
+        setIsConnected(true);
+        loadChatMessages();
+        setChatMessages(prev => [...prev, {
+          user: 'Système',
+          message: `${userName} a rejoint le chat (mode simple)`,
+          timestamp: new Date().toISOString(),
+          isSystem: true
+        }]);
+      };
+    } catch (error) {
+      console.error('WebSocket connection failed:', error);
+      // Fallback to simple mode
       setIsConnected(true);
       loadChatMessages();
-    };
-
-    ws.current.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      if (data.type === 'message') {
-        setChatMessages(prev => [...prev, {
-          user: data.user,
-          message: data.message,
-          timestamp: data.timestamp
-        }]);
-      } else if (data.type === 'user_joined') {
-        setChatMessages(prev => [...prev, {
-          user: 'Système',
-          message: `${data.user} a rejoint le chat`,
-          timestamp: data.timestamp,
-          isSystem: true
-        }]);
-      } else if (data.type === 'user_left') {
-        setChatMessages(prev => [...prev, {
-          user: 'Système',
-          message: `${data.user} a quitté le chat`,
-          timestamp: data.timestamp,
-          isSystem: true
-        }]);
-      }
-    };
-
-    ws.current.onclose = () => {
-      setIsConnected(false);
-    };
-
-    ws.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setIsConnected(false);
-    };
+      setChatMessages(prev => [...prev, {
+        user: 'Système',
+        message: `${userName} a rejoint le chat (mode simple)`,
+        timestamp: new Date().toISOString(),
+        isSystem: true
+      }]);
+    }
   };
 
   const loadChatMessages = async () => {
