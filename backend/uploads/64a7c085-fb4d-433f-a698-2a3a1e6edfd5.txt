@@ -1,0 +1,1 @@
+This is a test document for BKalan platform frontend testing.
