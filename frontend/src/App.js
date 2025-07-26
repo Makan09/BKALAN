@@ -192,13 +192,44 @@ function App() {
     }
   };
 
-  const sendMessage = (e) => {
+  const sendMessage = async (e) => {
     e.preventDefault();
-    if (!currentMessage.trim() || !isConnected) return;
+    if (!currentMessage.trim()) return;
 
-    ws.current.send(JSON.stringify({
-      message: currentMessage
-    }));
+    const messageData = {
+      user: userName,
+      message: currentMessage,
+      timestamp: new Date().toISOString()
+    };
+
+    // Try WebSocket first, fallback to direct API call
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({
+        message: currentMessage
+      }));
+    } else {
+      // Fallback: Direct API call to save message
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/chat/send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(messageData)
+        });
+
+        if (response.ok) {
+          // Add message to local state
+          setChatMessages(prev => [...prev, messageData]);
+          // Refresh messages to get updates from others
+          setTimeout(loadChatMessages, 1000);
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        // Still add to local state for immediate feedback
+        setChatMessages(prev => [...prev, messageData]);
+      }
+    }
 
     setCurrentMessage('');
   };
