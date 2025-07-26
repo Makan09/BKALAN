@@ -183,10 +183,16 @@ async def get_documents(section: str = None, subcategory: str = None):
         if subcategory:
             query["subcategory"] = subcategory
         
+        print(f"Debug: Query parameters - section: {section}, subcategory: {subcategory}")
+        print(f"Debug: MongoDB query: {query}")
+        
         documents = list(documents_collection.find(query, {"_id": 0}))
+        print(f"Debug: Found {len(documents)} documents")
+        
         return documents
     
     except Exception as e:
+        print(f"Error in get_documents: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching documents: {str(e)}")
 
 @app.get("/api/documents/{file_id}")
