@@ -139,6 +139,8 @@ async def upload_file(
     description: str = ""
 ):
     try:
+        print(f"Debug: Upload parameters - title: {title}, section: {section}, subcategory: {subcategory}")
+        
         # Generate unique filename
         file_id = str(uuid.uuid4())
         file_extension = os.path.splitext(file.filename)[1]
@@ -163,6 +165,7 @@ async def upload_file(
             "file_size": os.path.getsize(file_path)
         }
         
+        print(f"Debug: Document data to save: {document_data}")
         documents_collection.insert_one(document_data)
         
         return {
@@ -172,6 +175,7 @@ async def upload_file(
         }
     
     except Exception as e:
+        print(f"Upload error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 @app.get("/api/documents")
