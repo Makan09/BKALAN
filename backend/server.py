@@ -234,6 +234,31 @@ async def get_chat_messages(limit: int = 50):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching messages: {str(e)}")
 
+@app.post("/api/chat/send")
+async def send_chat_message(message: ChatMessage):
+    try:
+        # Save message to database
+        message_data = {
+            "user": message.user,
+            "message": message.message,
+            "timestamp": message.timestamp
+        }
+        
+        messages_collection.insert_one(message_data)
+        
+        # Try to broadcast to WebSocket connections if available
+        if len(manager.active_connections) > 0:
+            await manager.broadcast({
+                "type": "message",
+                **message_data
+            })
+        
+        return {"status": "success", "message": "Message sent"}
+    
+    except Exception as e:
+        print(f"Error sending message: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error sending message: {str(e)}")
+
 @app.websocket("/api/chat/ws/{user_name}")
 async def websocket_endpoint(websocket: WebSocket, user_name: str):
     await manager.connect(websocket, user_name)
