@@ -109,7 +109,7 @@ function App() {
       return;
     }
 
-    const wsUrl = `${BACKEND_URL.replace('http', 'ws')}/api/chat/ws/${encodeURIComponent(userName)}`;
+    const wsUrl = `${BACKEND_URL.replace('https', 'wss').replace('http', 'ws')}/api/chat/ws/${encodeURIComponent(userName)}`;
     ws.current = new WebSocket(wsUrl);
 
     ws.current.onopen = () => {
