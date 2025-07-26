@@ -460,6 +460,7 @@ function App() {
                   onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
                   className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                   rows="3"
+                  placeholder="Décrivez brièvement le contenu du document"
                 />
               </div>
               
