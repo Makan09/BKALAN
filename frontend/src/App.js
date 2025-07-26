@@ -483,14 +483,27 @@ function App() {
               <div className="flex space-x-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-amber-700 hover:bg-amber-600 text-white py-2 rounded-lg font-medium transition-colors"
+                  disabled={uploading}
+                  className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
+                    uploading 
+                      ? 'bg-gray-400 cursor-not-allowed text-white' 
+                      : 'bg-amber-700 hover:bg-amber-600 text-white'
+                  }`}
                 >
-                  Uploader
+                  {uploading ? 'Upload en cours...' : 'Uploader'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowUploadModal(false)}
-                  className="flex-1 bg-stone-500 hover:bg-stone-400 text-white py-2 rounded-lg font-medium transition-colors"
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setUploadForm({ title: '', description: '', file: null });
+                  }}
+                  disabled={uploading}
+                  className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
+                    uploading 
+                      ? 'bg-gray-400 cursor-not-allowed text-white' 
+                      : 'bg-stone-500 hover:bg-stone-400 text-white'
+                  }`}
                 >
                   Annuler
                 </button>
