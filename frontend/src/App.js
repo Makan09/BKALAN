@@ -75,32 +75,56 @@ function App() {
 
   const handleFileUpload = async (e) => {
     e.preventDefault();
-    if (!uploadForm.file) return;
+    
+    // Validation
+    if (!uploadForm.file) {
+      alert('Veuillez sélectionner un fichier');
+      return;
+    }
+    
+    if (!uploadForm.title.trim()) {
+      alert('Veuillez entrer un titre');
+      return;
+    }
 
-    const formData = new FormData();
-    formData.append('file', uploadForm.file);
-    formData.append('title', uploadForm.title);
-    formData.append('section', activeSection);
-    formData.append('subcategory', activeSubcategory);
-    formData.append('description', uploadForm.description);
-
+    setUploading(true);
+    
     try {
+      const formData = new FormData();
+      formData.append('file', uploadForm.file);
+      formData.append('title', uploadForm.title.trim());
+      formData.append('section', activeSection);
+      formData.append('subcategory', activeSubcategory);
+      formData.append('description', uploadForm.description.trim());
+
+      console.log('Uploading file:', {
+        title: uploadForm.title,
+        section: activeSection,
+        subcategory: activeSubcategory,
+        fileName: uploadForm.file.name
+      });
+
       const response = await fetch(`${BACKEND_URL}/api/upload`, {
         method: 'POST',
         body: formData
       });
 
+      const result = await response.json();
+      
       if (response.ok) {
         alert('Fichier uploadé avec succès !');
         setShowUploadModal(false);
         setUploadForm({ title: '', description: '', file: null });
         loadDocuments(); // Refresh documents list
       } else {
-        alert('Erreur lors de l\'upload');
+        console.error('Upload error:', result);
+        alert(`Erreur lors de l'upload: ${result.detail || 'Erreur inconnue'}`);
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Erreur lors de l\'upload');
+      alert('Erreur lors de l\'upload. Vérifiez votre connexion.');
+    } finally {
+      setUploading(false);
     }
   };
 
